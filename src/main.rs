@@ -1,6 +1,8 @@
 use num::complex::{Complex, Complex64};
 use std::fs::File;
 use std::io::Write;
+mod corr_sys_ada_order_2;
+mod corr_init_vec_ada_order_2__2e_2;
 
 type Cvecf = Vec<Complex<f64>>;
 
@@ -18,12 +20,24 @@ fn rk4(t_start: f64, t_end: f64, num_intervals: usize, func: fn(f64, &Cvecf, &mu
         //println!("{} {}", i, curr_t);
 
         // k1
+        if i == 1 {
+            for j in 0..init_vec.len() {
+                println!("{} ", curr_vec[j]);
+            }
+        }
         func(curr_t, &curr_vec, &mut k1);
+        println!("\n");
+        if i == 1 {
+            for j in 0..init_vec.len() {
+                println!("{} ", k1[j]);
+            }
+        }
 
         // yn + h*k1/2
         for j in 0..init_vec.len() {
             temp[j] = curr_vec[j] + h * k1[j] / 2.0;
         }
+        println!("\n");
         
         // k2
         func(curr_t + h / 2.0, &temp, &mut k2);
@@ -46,10 +60,12 @@ fn rk4(t_start: f64, t_end: f64, num_intervals: usize, func: fn(f64, &Cvecf, &mu
 
         // update
         for j in 0..init_vec.len() {
-            result[j][i] = curr_vec[j];
+            result[j][i] = curr_vec[j].clone();
             //println!("{}", h / 6.0 * (k1[j] + 2.0 * k2[j] + 2.0 * k3[j] + k4[j]));
             curr_vec[j] += h / 6.0 * (k1[j] + 2.0 * k2[j] + 2.0 * k3[j] + k4[j]);
         }
+
+        //panic!("haha");
         curr_t += h;
     }
     return result;
@@ -80,16 +96,22 @@ fn diff_equ_test(time: f64, yn: &Cvecf, fty: &mut Cvecf) {
 }
 
 fn main() {
-    let a: Complex<i32> = Complex::new(10, 20);
+    //let a: Complex<i32> = Complex::new(10, 20);
     //println!("Hello, world! {}", &(a.re.to_string() + "+" + &a.im.to_string() + "j"));
     print!("Computing...");
-    let init_vec = vec![Complex64::new(1.0, 0.0)];
+    //let init_vec = vec![Complex64::new(1.0, 0.0)];
+    //let t_start = 0.0;
+    //let t_end: f64 = 5.0;
+    //let num_intervals = 24;
+    //let result = rk4(t_start, t_end, num_intervals, diff_equ_test, &init_vec);
+    let mut init_vec = vec![Complex64::new(0.0, 0.0); 13];
+    corr_init_vec_ada_order_2__2e_2::corr_init_vec_ada_order_2__2e_2(&mut init_vec);
     let t_start = 0.0;
-    let t_end: f64 = 5.0;
-    let num_intervals = 24;
-    let result = rk4(t_start, t_end, num_intervals, diff_equ_test, &init_vec);
+    let t_end: f64 = 10.0;
+    let num_intervals = 100;
+    let result = rk4(t_start, t_end, num_intervals, corr_sys_ada_order_2::corr_system_ada_order_2, &init_vec);
     println!("Done");
     print!("Saving data...");
-    save_data("diff_equ_test.dat", t_start, t_end, num_intervals, &result);
+    save_data("corr_ada_2.dat", t_start, t_end, num_intervals, &result);
     println!("Done");
 }

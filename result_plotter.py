@@ -8,9 +8,13 @@ def read_file(file_name: str):
     splitted_time = lines[0].split()
     time = [float(t) for t in splitted_time]
     result_list = []
+    line_index = 0
+    print("Parsing lines...", end='')
     for line in lines[1:]:
+        print(line_index, "...", end='')
         splitted = line.split()
         result_list.append([complex(val) for val in splitted])
+    print("Done")
     return [time, result_list]
 
 
